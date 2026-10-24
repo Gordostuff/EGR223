@@ -1,0 +1,788 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Operational Amplifier Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: a bench notebook. Sticky tab strip on top, each module is a control column beside a dark scope screen, with check questions underneath. */
+:root{
+  --bg:#e9edf1; --surface:#ffffff; --surface-2:#f3f6f8; --ink:#111a22; --muted:#52606c; --line:#c8d1d9;
+  --accent:#00695c; --accent-ink:#ffffff; --accent-soft:#d5ece8;
+  --good:#146c36; --good-soft:#dcf0e3; --bad:#b3261e; --bad-soft:#f8dedb; --warn:#8a5200; --warn-soft:#f7e8cf;
+  --scope-bg:#08171a; --scope-grid:#18393a; --scope-text:#8db8b0;
+  --tr-in:#4fc3f7; --tr-out:#ffb347; --tr-ref:#a5d66b; --tr-aux:#ff7ab8;
+  --f-head:'IBM Plex Sans Condensed','Arial Narrow',system-ui,sans-serif;
+  --f-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d141a; --surface:#151f27; --surface-2:#1b2731; --ink:#e5ecf2; --muted:#98a6b3; --line:#2b3a47;
+    --accent:#3fd6c1; --accent-ink:#06211d; --accent-soft:#163832;
+    --good:#58d98a; --good-soft:#143323; --bad:#ff8a80; --bad-soft:#3d1c1a; --warn:#f5b84d; --warn-soft:#3a2d12;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d141a; --surface:#151f27; --surface-2:#1b2731; --ink:#e5ecf2; --muted:#98a6b3; --line:#2b3a47;
+  --accent:#3fd6c1; --accent-ink:#06211d; --accent-soft:#163832;
+  --good:#58d98a; --good-soft:#143323; --bad:#ff8a80; --bad-soft:#3d1c1a; --warn:#f5b84d; --warn-soft:#3a2d12;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1040px;margin:0 auto;padding-bottom:48px}
+h1,h2,h3{font-family:var(--f-head);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:2rem;font-weight:700;letter-spacing:.005em}
+h2{font-size:1.6rem;font-weight:600}
+h3{font-size:1.1rem;font-weight:600;margin-bottom:6px}
+p{margin:0 0 10px;max-width:68ch}
+.kick{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+header.top{padding:22px 0 14px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;justify-content:space-between}
+header.top p{color:var(--muted);margin:0;font-size:.9rem}
+nav#tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding:8px 0;border-bottom:1px solid var(--line);scrollbar-width:thin}
+nav#tabs button{flex:none;font:500 .85rem var(--f-body);color:var(--muted);background:transparent;border:1px solid transparent;border-radius:6px;padding:7px 11px;cursor:pointer;white-space:nowrap}
+nav#tabs button:hover{color:var(--ink);background:var(--surface)}
+nav#tabs button.on{background:var(--ink);color:var(--bg)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{display:none;padding-top:22px}
+.panel.on{display:block}
+.phead{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;margin-bottom:12px}
+.chip{font-family:var(--f-mono);font-size:.72rem;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:4px;padding:2px 7px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}
+.card+.card,.card+.lab,.lab+.card,.lab+.lab,p+.card,p+.lab{margin-top:16px}
+.lab{display:grid;grid-template-columns:minmax(0,310px) minmax(0,1fr);gap:16px}
+@media (max-width:780px){.lab{grid-template-columns:minmax(0,1fr)}}
+.stack{display:flex;flex-direction:column;gap:12px;min-width:0}
+.ctl{display:block}
+.cr{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}
+.cr label{color:var(--muted)}
+.cr output{font-family:var(--f-mono);font-size:.82rem;color:var(--ink);text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent);margin:4px 0 0}
+input[type=range]:disabled{opacity:.35}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.btn{font:500 .84rem var(--f-body);border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:6px;padding:6px 10px;cursor:pointer}
+.seg button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:hover,.seg button:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:default}
+.scope{width:100%;height:250px;display:block;border-radius:6px;background:var(--scope-bg)}
+.scope.short{height:200px}
+.reads{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin-top:12px}
+.read{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:0}
+.read .l{font-size:.72rem;color:var(--muted);display:block}
+.read .v{font-family:var(--f-mono);font-size:.95rem;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.read.ok .v{color:var(--good)} .read.bad .v{color:var(--bad)} .read.warn .v{color:var(--warn)}
+.eq{font-family:var(--f-mono);font-size:.86rem;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:9px 12px;margin:10px 0;overflow-x:auto;font-variant-numeric:tabular-nums}
+.note{border:1px solid var(--line);background:var(--surface-2);border-radius:6px;padding:10px 12px;font-size:.9rem;margin:10px 0}
+.note.warn{background:var(--warn-soft);border-color:var(--warn);color:var(--ink)}
+.rules{border:1px solid var(--accent);background:var(--accent-soft);border-radius:6px;padding:12px 14px;margin:12px 0}
+.rules ol{margin:6px 0 0;padding-left:20px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
+.fact{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:12px 14px}
+.fact b{font-family:var(--f-head);font-size:1.05rem;display:block;margin-bottom:4px}
+.fact span{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);display:block}
+.mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:12px}
+.mods button{text-align:left;font:inherit;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:11px 13px;cursor:pointer;color:var(--ink)}
+.mods button:hover{border-color:var(--accent)}
+.mods b{font-family:var(--f-head);font-size:1.02rem;display:block}
+.mods span{font-size:.84rem;color:var(--muted)}
+.mods .chip{display:inline-block;margin-bottom:5px}
+ul.clean{margin:6px 0 10px;padding-left:20px;max-width:68ch}
+ul.clean li{margin:3px 0}
+.steps{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.step{border:1px solid var(--line);border-radius:6px;padding:8px 12px;background:var(--surface);font-size:.92rem}
+.step.cur{border-color:var(--accent);background:var(--accent-soft)}
+.step.hide{display:none}
+.bars{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+.brow{display:grid;grid-template-columns:78px minmax(0,1fr) 78px;gap:8px;align-items:center;font-family:var(--f-mono);font-size:.78rem}
+.btrack{position:relative;height:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px}
+.btrack::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--muted)}
+.bfill{position:absolute;top:1px;bottom:1px;border-radius:2px}
+svg.sch{width:100%;height:auto;display:block;background:var(--surface-2);border:1px solid var(--line);border-radius:6px}
+svg.sch .w{stroke:var(--ink);fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg.sch .d{fill:var(--ink)}
+svg.sch text{fill:var(--ink);font:12px var(--f-mono)}
+svg.sch .m{fill:var(--muted)}
+.mcq{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.q{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface)}
+.q .qt{font-weight:500;margin-bottom:8px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{text-align:left;font:inherit;font-size:.9rem;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--good-soft);border-color:var(--good)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.exp{margin-top:8px;font-size:.88rem;color:var(--ink);display:none}
+.exp.show{display:block}
+.mcqh{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.score{font-family:var(--f-mono);font-size:.9rem}
+.prob{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface)}
+.prob+.prob{margin-top:12px}
+.prob .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.prob input[type=number]{width:130px;font:inherit;font-family:var(--f-mono);padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);color:var(--ink)}
+.fb{font-size:.88rem}
+.fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.sol{display:none;margin-top:8px;font-size:.88rem}
+.sol.show{display:block}
+.eqrows{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.eqrow{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px}
+.eqrow b{font-family:var(--f-head);display:block}
+.eqrow code{font-family:var(--f-mono);font-size:.85rem;display:block;margin-top:3px;overflow-wrap:anywhere}
+.eqrow span{font-size:.82rem;color:var(--muted)}
+sub,sup{line-height:0}
+@media (prefers-reduced-motion:no-preference){.panel.on{animation:fade .18s ease-out}}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="kick">Content based on Hayt, Engineering Circuit Analysis, 8th ed. Chapter 6</div>
+      <h1>Operational Amplifier Lab</h1>
+    </div>
+    <p>Change a value. Watch the circuit respond. Then answer the check question.</p>
+  </header>
+  <nav id="tabs" aria-label="Modules"></nav>
+  <main id="panels"></main>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var MIN='−';
+var SUPD={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+function sup(n){return String(n).split('').map(function(c){return SUPD[c]||c}).join('')}
+function f(x,d){
+  d=d||3;
+  if(x===undefined||x===null||isNaN(x))return 'n/a';
+  if(!isFinite(x))return x>0?'∞':MIN+'∞';
+  if(x===0)return '0';
+  var a=Math.abs(x),s;
+  if(a>=1e6||a<1e-3){var e=Math.floor(Math.log10(a));var m=x/Math.pow(10,e);s=Number(m.toPrecision(d))+'×10'+sup(e);}
+  else s=String(Number(x.toPrecision(d)));
+  return s.replace('-',MIN);
+}
+var PRE=[[1e9,'G'],[1e6,'M'],[1e3,'k'],[1,''],[1e-3,'m'],[1e-6,'µ'],[1e-9,'n'],[1e-12,'p'],[1e-15,'f']];
+function eng(x,u){
+  if(x===0||!isFinite(x))return f(x)+' '+u;
+  var a=Math.abs(x);
+  for(var i=0;i<PRE.length;i++){if(a>=PRE[i][0]*0.9995)return f(x/PRE[i][0])+' '+PRE[i][1]+u;}
+  return f(x/1e-15)+' f'+u;
+}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+
+/* ---------- controls ---------- */
+var FM={};
+function ctrl(id,label,min,max,step,val,fm,log){
+  FM[id]=fm;
+  return '<div class="ctl"><div class="cr"><label for="'+id+'">'+label+'</label><output id="'+id+'_o"></output></div>'+
+    '<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'"'+(log?' data-log="1"':'')+'></div>';
+}
+function V(id){var e=$(id);var v=+e.value;return e.dataset.log?Math.pow(10,v):v}
+function setV(id,x){var e=$(id);e.value=e.dataset.log?Math.log10(x):x;refreshOut(id)}
+function refreshOut(id){var o=$(id+'_o');if(o&&FM[id])o.textContent=FM[id](V(id))}
+var fU=function(u,d){return function(v){return f(v,d||3)+' '+u}};
+var fE=function(u){return function(v){return eng(v,u)}};
+function setSeg(id,key){
+  var bs=$(id).querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',bs[i].dataset.k===key);
+}
+function reads(items){
+  return '<div class="reads">'+items.map(function(it){return '<div class="read" id="'+it[0]+'"><span class="l">'+it[1]+'</span><span class="v">–</span></div>'}).join('')+'</div>';
+}
+function setRead(id,val,cls){
+  var e=$(id);if(!e)return;
+  e.querySelector('.v').textContent=val;
+  e.className='read'+(cls?' '+cls:'');
+}
+
+/* ---------- plotting ---------- */
+function setupCv(cv){
+  var dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+  var g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
+  return {g:g,w:w,h:h};
+}
+function niceStep(range,n){
+  var raw=range/n,p=Math.pow(10,Math.floor(Math.log10(raw))),m=raw/p;
+  return (m<1.5?1:m<3?2:m<7?5:10)*p;
+}
+function plot(cv,o){
+  var s=setupCv(cv),g=s.g,w=s.w,h=s.h;
+  var cs=getComputedStyle(document.documentElement);
+  var C=function(n){return cs.getPropertyValue(n).trim()};
+  g.clearRect(0,0,w,h);g.fillStyle=C('--scope-bg');g.fillRect(0,0,w,h);
+  var L=50,R=12,T=14,B=o.xlabel?36:24,pw=w-L-R,ph=h-T-B;
+  var X=function(x){return L+(x-o.xmin)/(o.xmax-o.xmin)*pw};
+  var Y=function(y){return T+(1-(y-o.ymin)/(o.ymax-o.ymin))*ph};
+  var mono=C('--f-mono');
+  g.font='11px '+mono;
+  var sx=niceStep(o.xmax-o.xmin,6),sy=niceStep(o.ymax-o.ymin,6);
+  g.strokeStyle=C('--scope-grid');g.fillStyle=C('--scope-text');g.lineWidth=1;
+  g.textAlign='center';g.textBaseline='top';
+  var x;
+  for(x=Math.ceil(o.xmin/sx-1e-9)*sx;x<=o.xmax+sx*1e-6;x+=sx){
+    var px=Math.round(X(x))+0.5;g.beginPath();g.moveTo(px,T);g.lineTo(px,T+ph);g.stroke();
+    g.fillText(f(+x.toFixed(9),3),px,T+ph+5);
+  }
+  g.textAlign='right';g.textBaseline='middle';
+  var y;
+  for(y=Math.ceil(o.ymin/sy-1e-9)*sy;y<=o.ymax+sy*1e-6;y+=sy){
+    var py=Math.round(Y(y))+0.5;g.beginPath();g.moveTo(L,py);g.lineTo(L+pw,py);g.stroke();
+    g.fillText(f(+y.toFixed(9),3),L-6,py);
+  }
+  if(o.ymin<0&&o.ymax>0){g.strokeStyle=C('--scope-text');g.globalAlpha=.55;var z=Math.round(Y(0))+0.5;g.beginPath();g.moveTo(L,z);g.lineTo(L+pw,z);g.stroke();g.globalAlpha=1}
+  g.save();g.beginPath();g.rect(L,T,pw,ph);g.clip();
+  (o.hlines||[]).forEach(function(hl){
+    g.strokeStyle=hl.color;g.lineWidth=1.2;g.setLineDash([5,4]);
+    var yy=Y(hl.y);g.beginPath();g.moveTo(L,yy);g.lineTo(L+pw,yy);g.stroke();g.setLineDash([]);
+  });
+  (o.vlines||[]).forEach(function(vl){
+    g.strokeStyle=vl.color;g.lineWidth=1.2;g.setLineDash([5,4]);
+    var xx=X(vl.x);g.beginPath();g.moveTo(xx,T);g.lineTo(xx,T+ph);g.stroke();g.setLineDash([]);
+  });
+  (o.series||[]).forEach(function(se){
+    g.strokeStyle=se.color;g.lineWidth=se.width||2;g.setLineDash(se.dash||[]);g.lineJoin='round';
+    g.beginPath();
+    for(var i=0;i<se.x.length;i++){var xx=X(se.x[i]),yy=Y(se.y[i]);if(i===0)g.moveTo(xx,yy);else g.lineTo(xx,yy)}
+    g.stroke();g.setLineDash([]);
+  });
+  (o.markers||[]).forEach(function(mk){
+    g.fillStyle=mk.color;g.beginPath();g.arc(X(mk.x),Y(mk.y),5,0,6.2832);g.fill();
+  });
+  g.restore();
+  g.fillStyle=C('--scope-text');g.textBaseline='alphabetic';
+  if(o.xlabel){g.textAlign='center';g.fillText(o.xlabel,L+pw/2,h-4)}
+  if(o.ylabel){g.textAlign='left';g.fillText(o.ylabel,L+4,T+11)}
+  if(o.legend){
+    g.textAlign='right';var lx=L+pw-6,ly=T+13;
+    o.legend.slice().reverse().forEach(function(lg,i){
+      var tw=g.measureText(lg.label).width;
+      g.fillStyle=lg.color;g.fillRect(lx-tw-18,ly+i*14-8,10,3);
+      g.fillStyle=C('--scope-text');g.fillText(lg.label,lx,ly+i*14);
+    });
+  }
+}
+
+/* ---------- schematic helpers ---------- */
+function zig(x1,x2,y){
+  var n=6,lead=10,seg=(x2-x1-2*lead)/n,d='M'+x1+' '+y+' L'+(x1+lead)+' '+y;
+  for(var i=0;i<n;i++){d+=' L'+(x1+lead+seg*(i+0.5))+' '+(y+(i%2?8:-8))}
+  d+=' L'+(x2-lead)+' '+y+' L'+x2+' '+y;
+  return '<path class="w" d="'+d+'"/>';
+}
+function gnd(x,y){return '<path class="w" d="M'+x+' '+y+' v8 M'+(x-11)+' '+(y+8)+' h22 M'+(x-7)+' '+(y+13)+' h14 M'+(x-3)+' '+(y+18)+' h6"/>'}
+function dot(x,y){return '<circle class="d" cx="'+x+'" cy="'+y+'" r="3.6"/>'}
+function term(x,y){return '<circle class="w" cx="'+x+'" cy="'+y+'" r="4" style="fill:var(--surface-2)"/>'}
+function opamp(){
+  return '<polygon class="w" points="210,60 210,200 340,130"/>'+
+    '<text x="218" y="100">−</text><text x="218" y="170">+</text>';
+}
+function schem(mode){
+  var s='<svg class="sch" viewBox="0 0 540 240" role="img" aria-label="Op amp circuit schematic">'+opamp();
+  s+='<path class="w" d="M340 130 H470"/>'+dot(400,130)+term(470,130)+'<text x="470" y="120" text-anchor="middle">vout</text>';
+  s+='<path class="w" d="M400 130 V35 H350 M200 35 H150 V95"/>'+dot(150,95);
+  s+='<path class="w" d="M150 95 H210"/>';
+  if(mode==='inv'){
+    s+=zig(350,200,35)+'<text id="sRf" x="275" y="20" text-anchor="middle" class="m"></text>';
+    s+='<path class="w" d="M34 95 H50"/>'+zig(50,130,95)+'<path class="w" d="M130 95 H150"/>'+term(30,95)+'<text x="30" y="82" text-anchor="middle">vin</text>';
+    s+='<text id="sR1" x="90" y="124" text-anchor="middle" class="m"></text>';
+    s+='<path class="w" d="M210 165 H170 V190"/>'+gnd(170,190);
+  }else if(mode==='non'){
+    s+=zig(350,200,35)+'<text id="sRf" x="275" y="20" text-anchor="middle" class="m"></text>';
+    s+='<path class="w" d="M150 95 H130"/>'+zig(130,50,95)+'<path class="w" d="M50 95 H30 V118"/>'+gnd(30,118);
+    s+='<text id="sR1" x="90" y="124" text-anchor="middle" class="m"></text>';
+    s+='<path class="w" d="M34 165 H210"/>'+term(30,165)+'<text x="30" y="152" text-anchor="middle">vin</text>';
+  }else{
+    s+='<path class="w" d="M350 35 H200"/>';
+    s+='<path class="w" d="M34 165 H210"/>'+term(30,165)+'<text x="30" y="152" text-anchor="middle">vin</text>';
+    s+='<text x="275" y="20" text-anchor="middle" class="m">wire (Rf = 0, R1 = ∞)</text>';
+  }
+  return s+'</svg>';
+}
+
+/* ---------- state ---------- */
+var S={amps:'inv',cmp:'fig635',comp:{pos:12,neg:-12,refPlus:true},src:null};
+var P=[];  // panels
+function addPanel(id,tab,sec,title,html,render){P.push({id:id,tab:tab,sec:sec,title:title,html:html,render:render})}
+function head(sec,title,lede){
+  return '<div class="phead">'+(sec?'<span class="chip">'+sec+'</span>':'')+'<h2>'+title+'</h2></div>'+(lede?'<p>'+lede+'</p>':'');
+}
+
+/* ---------- check data ---------- */
+var CHECKS={
+rules:[{q:'The inverting input of the ideal inverting amplifier sits at 0 V, yet it is not tied to ground. Why?',
+  o:['The output adjusts until the two input terminals have equal voltage, and the other input is grounded','Rf shorts the inverting input to ground','The power supply pulls the input to 0 V','No current flows, so the voltage must be zero'],a:0,
+  e:'Rule 2 forces equal input voltages. The noninverting input is at 0 V, so the inverting input follows. This is a virtual ground, not a physical connection.'}],
+amps:[{q:'A noninverting amplifier has R1 = 1 kΩ and Rf = 9 kΩ. What is the gain?',
+  o:['−9','9','10','−10'],a:2,
+  e:'Gain = 1 + Rf/R1 = 1 + 9 = 10. The minimum noninverting gain is 1, and the output stays in phase with the input.'}],
+sum:[{q:'A summing amplifier has Rf = R. With v1 = 1 V, v2 = 2 V, v3 = 0.5 V, what is vout?',
+  o:['+3.5 V','−3.5 V','−1.17 V','−7 V'],a:1,
+  e:'vout = −(Rf/R)(v1 + v2 + v3) = −(1)(3.5 V) = −3.5 V.'}],
+cascade:[{q:'A summing stage (Rf = R) feeds an inverting stage (R2 = R1). What is vout for v1 = 1 V, v2 = 2 V?',
+  o:['−3 V','+3 V','+1.5 V','0 V'],a:1,
+  e:'Two inversions cancel. vout = (R2/R1)(Rf/R)(v1 + v2) = +3 V.'}],
+sources:[{q:'An op amp current source delivers Is = Vref/Rref. What happens to Is as RL increases within the supply limits?',
+  o:['It falls in proportion to RL','It rises in proportion to RL','It stays constant','It becomes zero'],a:2,
+  e:'Is depends only on Vref and Rref. The load can change until the op amp output reaches its supply limit.'}],
+real:[{q:'The µA741 has A = 2×10⁵ and the supply is ±24 V. About how large is the differential input voltage vd at full output?',
+  o:['120 µV','24 V','2 V','12 mV'],a:0,
+  e:'vd = vout/A = 24 V / 2×10⁵ = 120 µV. That is practically zero, which is why ideal rule 2 works.'}],
+comp:[{q:'In the comparator with a +2.5 V reference on the noninverting input and the signal on the inverting input, vin = 1 V. The output is…',
+  o:['At the negative rail','At the positive rail','Exactly 1.5 V','Zero'],a:1,
+  e:'The noninverting input (2.5 V) is higher than the inverting input (1 V), so the output saturates positive.'}]
+};
+var FINAL=[
+{q:'Which pair are the two ideal op amp rules?',o:['No current enters either input; no voltage difference between the inputs','Output equals input; gain equals one','Input current equals output current; supply equals output','Both inputs at ground; output at supply'],a:0,e:'Rule 1: no current flows into either input terminal. Rule 2: no voltage difference between the input terminals.'},
+{q:'Inverting amplifier: R1 = 4.7 kΩ, Rf = 47 kΩ, vin = 5 sin 3t mV. What is vout?',o:['−50 sin 3t mV','55 sin 3t mV','−5.5 sin 3t mV','50 sin 3t mV'],a:0,e:'Gain = −Rf/R1 = −10, so vout = −50 sin 3t mV (Fig. 6.4).'},
+{q:'The same resistors, but wired as a noninverting amplifier. What is the gain?',o:['−10','+10','+11','+0.9'],a:2,e:'1 + Rf/R1 = 11, so vout = 55 sin 3t mV, in phase with the input (Example 6.1).'},
+{q:'Why do we avoid writing KCL at the output pin of an op amp?',o:['The output pin carries no current','The supplies feed an unknown current into the output, so nodal analysis at the inputs is preferred','The output voltage is always zero','KCL does not apply to integrated circuits'],a:1,e:'Current enters the output from the power supplies, so it cannot be assumed. Find vout first, then the output current.'},
+{q:'What does a voltage follower do, and why use it?',o:['Amplifies by 10 so weak signals are readable','Inverts the signal','Gives vout = vin while drawing no input current, so it buffers a source from a load','Removes dc offset'],a:2,e:'With R1 = ∞ and Rf = 0, vout = vin. The source sees an ideal open circuit, so the load does not disturb it.'},
+{q:'Summing amplifier with R = Rf = 10 kΩ and inputs 1 V, 2 V, 0.5 V. vout = ?',o:['+3.5 V','−3.5 V','−7 V','−0.35 V'],a:1,e:'vout = −(Rf/R)(v1 + v2 + v3) = −3.5 V.'},
+{q:'Why is a resistor placed in series with the Zener diode on a 9 V battery?',o:['To raise the Zener voltage','To drop the excess voltage and hold the current between the knee and the 75 mA maximum','To make the diode symmetric','To filter noise'],a:1,e:'Rref = (9 − 4.7)/I. Choosing I at about 50 percent of the maximum rating gives 115 Ω (Example 6.4).'},
+{q:'A current source uses Vref = 4.9 V and Rref = 4.9 kΩ. What load current flows?',o:['1 mA, for any RL until the output saturates','4.9 mA','0.1 mA','It depends on RL'],a:0,e:'Is = Vref/Rref = 1 mA. This is the behavior of an ideal current source (Example 6.5).'},
+{q:'What does negative feedback do to the closed-loop gain compared with the open-loop gain?',o:['Makes it larger and more sensitive to temperature','Makes it smaller and much less sensitive to A','Makes it exactly equal','Makes it infinite'],a:1,e:'Closed-loop gain is always less than the open-loop gain. The price buys stability against temperature and manufacturing spread.'},
+{q:'An op amp runs from +9 V and −5 V supplies. What output range can you expect?',o:['−9 V to +5 V','−5 V to +9 V, slightly less in practice','±9 V','±5 V'],a:1,e:'The supplies are the maximum output limits. Real outputs fall up to about a volt short (saturation).'},
+{q:'An LF411 slews at 15 V/µs. About how long to move its output from 0 to 2 V?',o:['13 ns','130 ns','1.3 µs','15 ns'],a:1,e:'t = 2 V / 15 V/µs = 133 ns.'},
+{q:'A CMRR of 100 dB corresponds to what ratio of differential gain to common-mode gain?',o:['100','10³','10⁵','10¹⁰'],a:2,e:'CMRR(dB) = 20 log₁₀(A/ACM). 100 dB means A/ACM = 10⁵.'},
+{q:'A comparator is an op amp used…',o:['Closed loop, with the output tied to the inverting input','Open loop, driven into saturation','Only with dc inputs','With three supplies'],a:1,e:'There is no external feedback resistor, so a very small differential input (supply/A, about 120 µV) saturates the output.'},
+{q:'What makes an instrumentation amplifier reject common-mode noise well?',o:['Matched resistor ratios, R4/R3 = R2/R1, with gain set by one external resistor','A very large supply voltage','Using only one op amp','Removing the voltage followers'],a:0,e:'With R4/R3 = R2/R1 = K the output is K(v+ − v−), so common-mode components cancel. Devices like the AD622 set K with an external RG.'}
+];
+
+/* ---------- MCQ engine ---------- */
+function mcq(el,items,final){
+  var state={answered:0,right:0};
+  var htm=items.map(function(it,i){
+    return '<div class="q" data-i="'+i+'"><div class="qt">'+(final?(i+1)+'. ':'')+it.q+'</div><div class="opts">'+
+      it.o.map(function(t,j){return '<button class="opt" data-j="'+j+'">'+t+'</button>'}).join('')+
+      '</div><div class="exp"></div></div>';
+  }).join('');
+  el.innerHTML=(final?'<div class="mcqh"><span class="score" id="qscore">0 of '+items.length+' answered</span><button class="btn" id="qreset">Reset quiz</button></div>':'')+htm;
+  el.addEventListener('click',function(ev){
+    var b=ev.target.closest('.opt');if(b&&!b.disabled){
+      var qd=b.closest('.q'),i=+qd.dataset.i,j=+b.dataset.j,it=items[i];
+      var opts=qd.querySelectorAll('.opt');
+      for(var k=0;k<opts.length;k++){opts[k].disabled=true;if(k===it.a)opts[k].classList.add('right')}
+      if(j!==it.a)b.classList.add('wrong');
+      var ex=qd.querySelector('.exp');ex.innerHTML=(j===it.a?'<b>Correct.</b> ':'<b>Not quite.</b> ')+it.e;ex.classList.add('show');
+      state.answered++;if(j===it.a)state.right++;
+      if(final)updateScore();
+    }
+    if(ev.target.id==='qreset'){mcq(el,items,final)}
+  });
+  function updateScore(){
+    var s=$('qscore');
+    s.textContent=state.answered<items.length?state.answered+' of '+items.length+' answered, '+state.right+' correct':
+      'Final score: '+state.right+' of '+items.length+' ('+Math.round(100*state.right/items.length)+'%)';
+  }
+}
+
+/* ======================= PANELS ======================= */
+
+/* ---- Start ---- */
+addPanel('start','Start','','',
+ '<div class="phead"><h2>Drive the op amp instead of reading about it</h2></div>'+
+ '<p>Eleven modules follow Chapter 6. Each one pairs the chapter’s reasoning with a live circuit and a check question. Sliders use the chapter’s own example values as starting points, so the first numbers you see match the text.</p>'+
+ '<div class="card"><h3>After this module you can</h3><ul class="clean">'+
+ '<li>Apply the two ideal op amp rules to find vout for inverting, noninverting, summing, difference, and cascaded circuits.</li>'+
+ '<li>Size resistors for a target gain, a Zener reference, and a constant current source.</li>'+
+ '<li>Predict where a real op amp departs from the ideal: finite gain, saturation, slew rate, and common-mode error.</li>'+
+ '<li>Explain what a comparator and an instrumentation amplifier do differently from a closed-loop amplifier.</li></ul></div>'+
+ '<div class="mods" id="modgrid"></div>',null);
+
+/* ---- Rules ---- */
+addPanel('rules','Ideal rules','6.1 to 6.2','The ideal op amp',
+ head('6.1 to 6.2','The ideal op amp','Early vacuum tube op amps built analog computers in the 1940s. A modern IC does the same job with far less of everything.')+
+ '<div class="facts">'+
+ '<div class="fact"><b>Philbrick K2-W, 1952</b><span>85 g (3 oz)</span><span>supplies about ±300 V</span><span>about US$22</span></div>'+
+ '<div class="fact"><b>Fairchild KA741 (IC)</b><span>under 500 mg</span><span>supplies about ±18 V</span><span>about US$0.22</span></div></div>'+
+ '<div class="rules"><b>Ideal op amp rules</b><ol><li>No current ever flows into either input terminal.</li><li>There is no voltage difference between the two input terminals.</li></ol></div>'+
+ '<p>Use them on the inverting amplifier of Fig. 6.3 and Fig. 6.5. Step through the derivation and change the values.</p>'+
+ '<div class="lab"><div class="card stack">'+
+ ctrl('u_vin','vin',-5,5,0.1,2.5,fU('V'))+ctrl('u_r1','R1',0.1,10,0.1,1,fU('kΩ'))+ctrl('u_rf','Rf',0.1,50,0.1,4,fU('kΩ'))+
+ '<div class="seg"><button class="btn" id="u_back">Back</button><button class="btn primary" id="u_next">Next step</button><button class="btn" id="u_all">Show all</button></div>'+
+ '<div class="bars" id="u_bars"></div></div>'+
+ '<div class="card"><div id="u_sch"></div><div class="steps" id="u_steps"></div><div id="u_eq"></div></div></div>'+
+ '<div class="note">The virtual ground does not short the inputs together. The op amp makes whatever internal adjustment keeps the two input voltages equal. The ideal model also assumes the supplies can deliver any output. Section 6.5 removes that assumption.</div>'+
+ '<h3 style="margin-top:18px">Check yourself</h3><div class="mcq" data-set="rules"></div>',
+ renderRules);
+var U={step:0};
+function renderRules(){
+  var vin=V('u_vin'),R1=V('u_r1')*1e3,Rf=V('u_rf')*1e3,i=vin/R1,vo=-Rf*i;
+  $('u_sch').innerHTML=schem('inv');
+  $('sR1').textContent=f(R1/1e3)+' kΩ';$('sRf').textContent=f(Rf/1e3)+' kΩ';
+  var steps=[
+   '<b>1. Rule 1.</b> No current enters the − terminal, so the same current i flows through R1 and Rf.',
+   '<b>2. Rule 2.</b> The + terminal is grounded, so the − terminal is also at 0 V: the virtual ground.',
+   '<b>3. Input loop.</b> KVL: −vin + R1·i + 0 = 0, so i = vin/R1 = '+f(vin)+' V / '+f(R1/1e3)+' kΩ = '+eng(i,'A')+'.',
+   '<b>4. Output side.</b> The same i crosses Rf, so vout = 0 − Rf·i = −('+f(Rf/1e3)+' kΩ)('+eng(i,'A')+') = '+f(vo)+' V.',
+   '<b>5. Result.</b> vout = −(Rf/R1) vin = −'+f(Rf/R1)+' × '+f(vin)+' V = '+f(vo)+' V. Only the ratio Rf/R1 matters.'];
+  $('u_steps').innerHTML=steps.map(function(t,k){return '<div class="step'+(k===U.step?' cur':'')+(k>U.step?' hide':'')+'">'+t+'</div>'}).join('');
+  $('u_eq').innerHTML='<div class="eq">vout = −(Rf/R1) vin = '+f(vo)+' V &nbsp;|&nbsp; gain = '+f(-Rf/R1)+'</div>';
+  var m=Math.max(5,Math.abs(vin),Math.abs(vo));
+  var rows=[['vin',vin,'var(--tr-in)'],['v− input',0,'var(--accent)'],['v+ input',0,'var(--accent)'],['vout',vo,'var(--tr-out)']];
+  $('u_bars').innerHTML=rows.map(function(r){
+    var pct=Math.abs(r[1])/m*50,left=r[1]>=0?50:50-pct;
+    return '<div class="brow"><span>'+r[0]+'</span><div class="btrack"><div class="bfill" style="left:'+left+'%;width:'+pct+'%;background:'+r[2]+'"></div></div><span>'+f(r[1])+' V</span></div>';
+  }).join('');
+  $('u_back').disabled=U.step===0;$('u_next').disabled=U.step===4;
+}
+
+/* ---- Amplifiers ---- */
+addPanel('amps','Amplifiers','6.2','Inverting and noninverting amplifiers',
+ head('6.2','Inverting, noninverting, follower','Pick a configuration. The scope shows vin and vout for vin = A sin 3t, the same signal as Figs. 6.4 and 6.7. Raise the gain or the amplitude until the output hits the supply limit.')+
+ '<div class="lab"><div class="card stack">'+
+ '<div class="seg" id="a_mode"><button data-k="inv" class="on">Inverting</button><button data-k="non">Noninverting</button><button data-k="fol">Follower</button></div>'+
+ ctrl('a_amp','Input amplitude',0,3.5,0.01,0.699,function(v){return f(v)+' mV'},true)+
+ ctrl('a_r1','R1',0.1,100,0.1,4.7,fU('kΩ'))+ctrl('a_rf','Rf',0.1,500,0.1,47,fU('kΩ'))+
+ ctrl('a_sup','Supply ±V',5,24,1,15,fU('V'))+
+ '<div class="seg" id="a_pre"><button data-k="p1">Fig. 6.3 (−10)</button><button data-k="p2">Example 6.1 (+11)</button><button data-k="p3">Overdrive</button></div></div>'+
+ '<div class="card"><canvas id="a_cv" class="scope"></canvas>'+reads([['a_g','Closed-loop gain'],['a_pk','Output peak'],['a_ph','Phase'],['a_st','Status']])+
+ '<div class="eq" id="a_eq"></div></div></div>'+
+ '<div class="card"><div id="a_sch"></div></div>'+
+ '<div class="note">Noninverting gain is never below 1. The follower is the special case R1 = ∞, Rf = 0, useful as a buffer because it draws no current from the source. The output limit used here is the supply minus 1 V, the “volt or so” of footnote 3.</div>'+
+ '<h3 style="margin-top:18px">Check yourself</h3><div class="mcq" data-set="amps"></div>',
+ renderAmps);
+function renderAmps(){
+  var m=S.amps,A=V('a_amp')/1000,R1=V('a_r1')*1e3,Rf=V('a_rf')*1e3,rail=Math.max(V('a_sup')-1,0);
+  var g=m==='inv'?-Rf/R1:m==='non'?1+Rf/R1:1;
+  var fol=m==='fol';$('a_r1').disabled=fol;$('a_rf').disabled=fol;
+  var cur=$('a_sch').dataset.mode;
+  if(cur!==m){$('a_sch').innerHTML=schem(m);$('a_sch').dataset.mode=m}
+  if($('sR1'))$('sR1').textContent='R1 = '+f(R1/1e3)+' kΩ';
+  if($('sRf'))$('sRf').textContent='Rf = '+f(Rf/1e3)+' kΩ';
+  var want=Math.abs(g)*A,clip=want>rail,pk=Math.min(want,rail);
+  var big=Math.max(A,pk),k=big<1?1000:1,u=k===1000?'mV':'V';
+  var xs=[],vi=[],vo=[],N=300;
+  for(var i=0;i<=N;i++){var t=7*i/N,s=A*Math.sin(3*t);xs.push(t);vi.push(s*k);vo.push(clamp(g*s,-rail,rail)*k)}
+  var ym=big*k*1.25;
+  plot($('a_cv'),{xmin:0,xmax:7,ymin:-ym,ymax:ym,series:[{x:xs,y:vi,color:'#4fc3f7'},{x:xs,y:vo,color:'#ffb347'}],
+    hlines:clip?[{y:rail*k,color:'#ff7ab8'},{y:-rail*k,color:'#ff7ab8'}]:[],
+    xlabel:'t (s)',ylabel:'Voltage ('+u+')',legend:[{label:'vin',color:'#4fc3f7'},{label:'vout',color:'#ffb347'}]});
+  setRead('a_g',f(g),'');
+  setRead('a_pk',eng(pk,'V'),clip?'warn':'');
+  setRead('a_ph',g<0?'180° (inverted)':'in phase','');
+  setRead('a_st',clip?'Saturated':'Linear',clip?'bad':'ok');
+  var eq=m==='inv'?'vout = −(Rf/R1) vin = −('+f(Rf/1e3)+'/'+f(R1/1e3)+') vin = '+f(g)+' vin':
+        m==='non'?'vout = (1 + Rf/R1) vin = (1 + '+f(Rf/1e3)+'/'+f(R1/1e3)+') vin = '+f(g)+' vin':'vout = vin';
+  $('a_eq').innerHTML=eq+(clip?'<br>Unclipped peak would be '+eng(want,'V')+'. The output is stuck at ±'+f(rail)+' V.':'');
+}
+
+/* ---- Summing and difference ---- */
+addPanel('sum','Summing','6.2','Summing and difference amplifiers, and a design',
+ head('6.2','Summing, difference, and a fuel gauge','Ideal rule 2 puts the summing node at 0 V, so each input current is vk/R and the currents add. The result is Eq. [6].')+
+ '<div class="lab"><div class="card stack"><h3>Summing amplifier (Fig. 6.9)</h3>'+
+ ctrl('s_v1','v1',-3,3,0.1,1,fU('V'))+ctrl('s_v2','v2',-3,3,0.1,2,fU('V'))+ctrl('s_v3','v3',-3,3,0.1,0.5,fU('V'))+
+ ctrl('s_r','R',1,50,0.5,10,fU('kΩ'))+ctrl('s_rf','Rf',0.5,50,0.1,10,fU('kΩ'))+
+ '<div class="seg" id="s_pre"><button data-k="kg">Pounds to kg (Rf = R/2.205)</button><button data-k="sum">Plain sum (Rf = R)</button></div></div>'+
+ '<div class="card"><div id="s_out"></div>'+reads([['s_vo','vout'],['s_sum','v1 + v2 + v3'],['s_gain','−Rf/R']])+
+ '<div class="eq" id="s_eq"></div>'+
+ '<p>RL does not appear in the result. Select Rf = R/2.205 and three scales calibrated at −1 V per lb produce a signal in kilograms, within about 1 percent of the conversion.</p></div></div>'+
+ '<div class="lab"><div class="card stack"><h3>Difference amplifier (Fig. 6.10, all R equal)</h3>'+
+ ctrl('d_v1','v1',-5,5,0.1,1,fU('V'))+ctrl('d_v2','v2',-5,5,0.1,3,fU('V'))+
+ '<div class="note">Hint from Practice 6.2: use voltage division to find vb. Try v1 = v2 to see the common-mode cancel.</div></div>'+
+ '<div class="card">'+reads([['d_vo','vout = v2 − v1'],['d_cm','Common-mode (v1+v2)/2'],['d_df','Difference v2 − v1']])+'</div></div>'+
+ '<div class="card"><h3>Design: Example 6.3, the propellant fuel gauge</h3>'+
+ '<p>Three tank sensors give 0 to 5 V for 0 to 12,500 psia. Tanks 1 and 2 hold 10,000 psia, tank 3 holds 2,000 psia. Build a signal where 1 V means 100 percent of the total fuel.</p>'+
+ '<div class="lab"><div class="stack">'+ctrl('f_1','Tank 1 level',0,100,1,100,fU('%'))+ctrl('f_2','Tank 2 level',0,100,1,100,fU('%'))+ctrl('f_3','Tank 3 level',0,100,1,100,fU('%'))+'</div>'+
+ '<div>'+reads([['f_v1','Sensor 1'],['f_v2','Sensor 2'],['f_v3','Sensor 3'],['f_vx','Summing stage vx'],['f_out','Final vout']])+
+ '<div class="eq" id="f_eq"></div></div></div></div>'+
+ '<h3 style="margin-top:18px">Check yourself</h3><div class="mcq" data-set="sum"></div>',
+ renderSum);
+function renderSum(){
+  var v1=V('s_v1'),v2=V('s_v2'),v3=V('s_v3'),R=V('s_r'),Rf=V('s_rf');
+  var sm=v1+v2+v3,vo=-(Rf/R)*sm;
+  setRead('s_vo',f(vo)+' V','');setRead('s_sum',f(sm)+' V','');setRead('s_gain',f(-Rf/R),'');
+  $('s_eq').textContent='vout = −(Rf/R)(v1+v2+v3) = −('+f(Rf)+'/'+f(R)+')('+f(sm)+' V) = '+f(vo)+' V';
+  $('s_out').innerHTML='';
+  var a=V('d_v1'),b=V('d_v2');
+  setRead('d_vo',f(b-a)+' V','');setRead('d_cm',f((a+b)/2)+' V','');setRead('d_df',f(b-a)+' V','');
+  var l1=V('f_1')/100,l2=V('f_2')/100,l3=V('f_3')/100;
+  var s1=4*l1,s2=4*l2,s3=0.8*l3,vx=-(s1+s2+s3),vf=-vx/8.8;
+  setRead('f_v1',f(s1)+' V','');setRead('f_v2',f(s2)+' V','');setRead('f_v3',f(s3)+' V','');setRead('f_vx',f(vx)+' V','');
+  setRead('f_out',f(vf)+' V ('+f(vf*100,3)+'%)',Math.abs(vf-1)<1e-9?'ok':'');
+  $('f_eq').innerHTML='Summing stage: R1 = R2 = R3 = R4 = 1 kΩ, so vx = −(v1+v2+v3).<br>Full tanks give vx = −(4 + 4 + 0.8) = −8.8 V. Inverting stage: R6/R5 = 1/8.8, with R6 = 1 kΩ and R5 = 8.8 kΩ.<br>Sensor 3 is buffered by a follower so the sensor output resistance does not matter.';
+}
+
+/* ---- Cascade ---- */
+addPanel('cascade','Cascaded','6.3','Cascaded stages',
+ head('6.3','Cascaded stages','A summing stage feeds an inverting stage (Fig. 6.15). Because the first op amp output is an ideal source, each stage keeps its own input-output relation and the gains multiply.')+
+ '<div class="lab"><div class="card stack">'+
+ ctrl('c_v1','v1',-3,3,0.1,1,fU('V'))+ctrl('c_v2','v2',-3,3,0.1,0.5,fU('V'))+
+ ctrl('c_r','R',1,50,0.5,10,fU('kΩ'))+ctrl('c_rf','Rf',1,100,0.5,20,fU('kΩ'))+ctrl('c_r1','R1',1,50,0.5,10,fU('kΩ'))+ctrl('c_r2','R2',1,100,0.5,30,fU('kΩ'))+
+ '<div class="seg" id="c_pre"><button data-k="unity">vout = v1 + v2</button></div></div>'+
+ '<div class="card">'+reads([['c_vx','First stage vx'],['c_vo','Output vout'],['c_gain','Gain per input']])+
+ '<div class="eq" id="c_eq"></div>'+
+ '<div class="steps"><div class="step"><b>Work backward from the output.</b> Rule 2 sets vc = 0, so 0 = vx/R1 + vout/R2 (Eq. 11).</div>'+
+ '<div class="step"><b>Then the first stage.</b> Rule 2 sets va = 0, so 0 = vx/Rf + v1/R + v2/R (Eq. 13).</div>'+
+ '<div class="step"><b>Combine.</b> vout = (R2/R1)(Rf/R)(v1 + v2) (Eq. 14). The cascade acts as a summing amplifier without a phase reversal.</div></div>'+
+ '<div class="note" id="c_warn" hidden></div></div></div>'+
+ '<h3 style="margin-top:18px">Check yourself</h3><div class="mcq" data-set="cascade"></div>',
+ renderCascade);
+function renderCascade(){
+  var v1=V('c_v1'),v2=V('c_v2'),R=V('c_r'),Rf=V('c_rf'),R1=V('c_r1'),R2=V('c_r2');
+  var vx=-(Rf/R)*(v1+v2),vo=-(R2/R1)*vx;
+  setRead('c_vx',f(vx)+' V',Math.abs(vx)>14?'bad':'');setRead('c_vo',f(vo)+' V',Math.abs(vo)>14?'bad':'');setRead('c_gain',f((R2/R1)*(Rf/R)),'');
+  $('c_eq').innerHTML='vx = −(Rf/R)(v1+v2) = '+f(vx)+' V<br>vout = −(R2/R1) vx = '+f(vo)+' V<br>vout = (R2/R1)(Rf/R)(v1+v2) = '+f(vo)+' V';
+  var w=$('c_warn');
+  if(Math.abs(vx)>14||Math.abs(vo)>14){w.hidden=false;w.className='note warn';w.textContent='A stage output above about 14 V would saturate on ±15 V supplies. The ideal equations no longer hold. Reduce a gain or an input.'}
+  else w.hidden=true;
+}
+
+/* ---- Sources ---- */
+addPanel('sources','Sources','6.4','Voltage and current sources',
+ head('6.4','A reliable voltage source and current source','A Zener diode holds a nearly constant voltage once reverse breakdown starts. A series resistor sets the current. An op amp then turns that reference into a stronger voltage source or a load-independent current source.')+
+ '<div class="card"><h3>Zener reference (Fig. 6.18 and Example 6.4)</h3><div class="lab"><div class="stack">'+
+ ctrl('z_vs','Source (battery) voltage',3,24,0.1,9,fU('V'))+ctrl('z_vz','Zener voltage',2.4,12,0.1,4.7,fU('V'))+
+ ctrl('z_im','Maximum diode current',10,200,1,75,fU('mA'))+ctrl('z_fr','Target fraction of Imax',10,100,1,50,fU('%'))+
+ '</div><div>'+reads([['z_r','Rref'],['z_i','Iref'],['z_pr','Power in Rref'],['z_pz','Power in diode'],['z_max','Largest safe source']])+
+ '<div class="eq" id="z_eq"></div></div></div>'+
+ '<div class="lab" style="margin-top:12px"><div><div class="kick">Vref against source voltage</div><canvas id="z_cv1" class="scope short"></canvas></div><div><div class="kick">Diode current against source voltage</div><canvas id="z_cv2" class="scope short"></canvas></div></div></div>'+
+ '<div class="card"><h3>Op amp current source (Fig. 6.21 and Example 6.5)</h3><div class="lab"><div class="stack">'+
+ ctrl('i_vref','Vref',1,9,0.1,4.9,fU('V'))+ctrl('i_rref','Rref',0.1,20,0.1,4.9,fU('kΩ'))+ctrl('i_rl','Load RL',0,20,0.1,2,fU('kΩ'))+ctrl('i_sup','Supply ±V',5,24,1,15,fU('V'))+
+ '</div><div><canvas id="i_cv" class="scope short"></canvas>'+reads([['i_is','Is = Vref/Rref'],['i_vo','Output needed |Is·RL|'],['i_rmax','Largest RL in regulation'],['i_st','Status']])+'</div></div>'+
+ '<p>The current into RL does not depend on RL, until the op amp runs out of output voltage. Past that point the output saturates (Section 6.5) and the current falls.</p></div>'+
+ '<h3 style="margin-top:18px">Check yourself</h3><div class="mcq" data-set="sources"></div>',
+ renderSources);
+function renderSources(){
+  var Vs=V('z_vs'),Vz=V('z_vz'),Im=V('z_im')/1000,fr=V('z_fr')/100;
+  var I=fr*Im,ok=Vs>Vz+0.05;
+  if(ok){
+    var Rr=(Vs-Vz)/I;
+    setRead('z_r',eng(Rr,'Ω'),'');setRead('z_i',eng(I,'A'),'');setRead('z_pr',eng(I*I*Rr,'W'),'');setRead('z_pz',eng(Vz*I,'W'),'');
+    setRead('z_max',f(Vz+Im*Rr)+' V','');
+    $('z_eq').innerHTML='Rref = (Vs − Vz)/Iref = ('+f(Vs)+' − '+f(Vz)+')/'+eng(I,'A')+' = '+eng(Rr,'Ω')+'<br>Example 6.4 gives 115 Ω for 9 V, 4.7 V and 50 percent of 75 mA (37.5 mA).';
+    var xm=Math.max(20,Math.ceil(Vs*1.5)),xs=[],y1=[],y2=[];
+    for(var i=0;i<=200;i++){var x=xm*i/200;xs.push(x);y1.push(Math.min(x,Vz));y2.push(Math.max(0,(x-Vz)/Rr)*1000)}
+    plot($('z_cv1'),{xmin:0,xmax:xm,ymin:0,ymax:Vz*1.3,series:[{x:xs,y:y1,color:'#ffb347'}],markers:[{x:Vs,y:Vz,color:'#4fc3f7'}],xlabel:'Source voltage (V)',ylabel:'Vref (V)'});
+    plot($('z_cv2'),{xmin:0,xmax:xm,ymin:0,ymax:Math.max(Im*1000*1.3,y2[200]*1.05),series:[{x:xs,y:y2,color:'#4fc3f7'}],hlines:[{y:Im*1000,color:'#ff7ab8'}],markers:[{x:Vs,y:I*1000,color:'#ffb347'}],xlabel:'Source voltage (V)',ylabel:'I (mA), dashed = max'});
+  }else{
+    ['z_r','z_i','z_pr','z_pz','z_max'].forEach(function(id){setRead(id,'n/a','bad')});
+    $('z_eq').textContent='The source must exceed the Zener voltage to reach breakdown.';
+  }
+  var Vr=V('i_vref'),Rrf=V('i_rref')*1e3,RL=V('i_rl')*1e3,rail=V('i_sup')-1;
+  var Is=Vr/Rrf,need=Is*RL,sat=need>rail,Ireal=sat?rail/Math.max(RL,1e-9):Is,rmax=rail/Is;
+  setRead('i_is',eng(Is,'A'),'');setRead('i_vo',eng(need,'V'),sat?'bad':'');setRead('i_rmax',eng(rmax,'Ω'),'');
+  setRead('i_st',sat?'Saturated, I = '+eng(Ireal,'A'):'In regulation',sat?'bad':'ok');
+  var xs2=[],ys2=[];
+  for(var j=0;j<=200;j++){var r=20000*j/200;xs2.push(r/1000);ys2.push(Math.min(Is,rail/Math.max(r,1e-9))*1000)}
+  plot($('i_cv'),{xmin:0,xmax:20,ymin:0,ymax:Math.max(Is*1000*1.4,0.1),series:[{x:xs2,y:ys2,color:'#ffb347'}],markers:[{x:RL/1000,y:Ireal*1000,color:'#4fc3f7'}],xlabel:'RL (kΩ)',ylabel:'Load current (mA)'});
+}
+
+/* ---- Real op amps ---- */
+addPanel('real','Real op amps','6.5','Practical considerations',
+ head('6.5','Where the ideal model bends','Four departures matter in practice: finite open-loop gain, common-mode leakage, a supply-limited output, and a finite slew rate.')+
+ '<div class="card"><h3>1. Finite gain, input resistance and output resistance (Example 6.6)</h3><div class="lab"><div class="stack">'+
+ '<div class="seg" id="r_pre"><button data-k="741">µA741</button><button data-k="411">LF411</button><button data-k="549">AD549K</button></div>'+
+ ctrl('r_a','Open-loop gain A',2,7,0.01,5.301,function(v){return f(v)+' V/V'},true)+
+ ctrl('r_ri','Input resistance Ri',3,13,0.01,6.301,fE('Ω'),true)+
+ ctrl('r_ro','Output resistance Ro',-1,3,0.01,1.875,fE('Ω'),true)+
+ ctrl('r_r1','R1',0.1,20,0.1,4.7,fU('kΩ'))+ctrl('r_rf','Rf',0.1,100,0.1,47,fU('kΩ'))+ctrl('r_sup','Output swing',5,24,1,24,fU('V'))+
+ '</div><div>'+reads([['r_g','Actual gain'],['r_gi','Ideal gain −Rf/R1'],['r_er','Gain error'],['r_vd','vd at full output'],['r_in','Input current vd/Ri']])+
+ '<div class="eq" id="r_eq"></div></div></div></div>'+
+ '<div class="card"><h3>2. Common-mode rejection (Eqs. 18 and 19)</h3><div class="lab"><div class="stack">'+
+ ctrl('m_db','CMRR',40,140,1,100,fU('dB'))+ctrl('m_cm','Common-mode input',0,10,0.1,2,fU('V'))+
+ '</div><div>'+reads([['m_ratio','A / ACM'],['m_err','Output error, unity-gain difference amp']])+
+ '<p>A 100 dB op amp shows 1 part in 10⁵ of the common-mode voltage at the output of a gain-of-one difference amplifier.</p></div></div></div>'+
+ '<div class="card"><h3>3. Slew rate (Fig. 6.30)</h3><p>A noninverting amplifier with gain 2 and a 1 V pulse input. Shorten the rise time or pick a slower op amp and the output cannot keep up.</p><div class="lab"><div class="stack">'+
+ '<div class="seg" id="w_pre"><button data-k="0.5">µA741 0.5</button><button data-k="3">AD549K 3</button><button data-k="15" class="on">LF411 15</button><button data-k="1800">OPA690 1800</button></div>'+
+ ctrl('w_sr','Slew rate',-0.5,3.5,0.01,1.176,function(v){return f(v)+' V/µs'},true)+
+ ctrl('w_tr','Input rise and fall time',1,3.4,0.01,2,function(v){return eng(v*1e-9,'s')},true)+
+ reads([['w_t','Time to slew 0 to 2 V'],['w_req','Slew rate needed'],['w_st','Verdict']])+'</div>'+
+ '<div><canvas id="w_cv" class="scope"></canvas></div></div></div>'+
+ '<div class="note"><b>Saturation.</b> The supplies set the output limits. On ±18 V supplies the µA741 in Fig. 6.28 is linear for about ±1.71 V of input at a gain of 10, then clips near 17.6 V. <b>Offset voltage.</b> Real amplifiers show a few millivolts or less of input offset, trimmed with the offset null pins and a variable resistor (Fig. 6.29). <b>Negative feedback</b> makes closed-loop gain depend on resistors rather than on A, which drifts with temperature.</div>'+
+ '<h3 style="margin-top:18px">Check yourself</h3><div class="mcq" data-set="real"></div>',
+ renderReal);
+function finiteGain(A,Ri,Ro,R1,Rf){var k=(Ro+Rf)/(Ro-A*Rf);var d=k*(1/R1+1/Rf+1/Ri)-1/Rf;return (1/R1)/d}
+function renderReal(){
+  var A=V('r_a'),Ri=V('r_ri'),Ro=V('r_ro'),R1=V('r_r1')*1e3,Rf=V('r_rf')*1e3,vo=V('r_sup');
+  var g=finiteGain(A,Ri,Ro,R1,Rf),gi=-Rf/R1,er=(g-gi)/gi*100;
+  var vd=vo/A,iin=vd/Ri;
+  setRead('r_g',f(g,7),'');setRead('r_gi',f(gi),'');setRead('r_er',f(Math.abs(er),3)+' %','');
+  setRead('r_vd',eng(vd,'V'),'');setRead('r_in',eng(iin,'A'),'');
+  $('r_eq').innerHTML='Eq. [15] with A = '+f(A)+', Ri = '+eng(Ri,'Ω')+', Ro = '+eng(Ro,'Ω')+'<br>For the µA741 defaults the chapter finds vout = −9.999448 vin. Rule 1 and rule 2 error is a few hundredths of a percent.';
+  var ratio=Math.pow(10,V('m_db')/20),cm=V('m_cm');
+  setRead('m_ratio','10^'+f(V('m_db')/20,3)+' = '+f(ratio),'');
+  setRead('m_err',eng(cm/ratio,'V'),'');
+  var SR=V('w_sr'),tr=V('w_tr')/1000; /* tr in us */
+  var xmax=25*tr,N=1500,dt=xmax/N,xs=[],vi=[],vo2=[],y=0;
+  for(var i=0;i<=N;i++){
+    var t=i*dt,u=t-tr,p=u<0?0:(u%(12*tr)),lv;
+    if(u<0)lv=0;else if(p<tr)lv=p/tr;else if(p<6*tr)lv=1;else if(p<7*tr)lv=1-(p-6*tr)/tr;else lv=0;
+    var tg=2*lv,step=SR*dt;
+    y=y+clamp(tg-y,-step,step);
+    xs.push(t);vi.push(lv);vo2.push(y);
+  }
+  plot($('w_cv'),{xmin:0,xmax:xmax,ymin:-0.5,ymax:2.5,series:[{x:xs,y:vi,color:'#4fc3f7'},{x:xs,y:vo2,color:'#ffb347'}],xlabel:'t (µs)',ylabel:'Voltage (V)',legend:[{label:'vin',color:'#4fc3f7'},{label:'vout',color:'#ffb347'}]});
+  var tsl=2/SR,req=2/tr;
+  setRead('w_t',eng(tsl*1e-6,'s'),'');setRead('w_req',f(req)+' V/µs','');
+  setRead('w_st',SR>=req?'Tracks the input':'Slew limited',SR>=req?'ok':'bad');
+}
+
+/* ---- Comparator and in-amp ---- */
+addPanel('comp','Comparator and in-amp','6.6','Comparators and the instrumentation amplifier',
+ head('6.6','Open loop and three op amps in one','Remove the feedback resistor and a tiny input difference drives the output to a supply rail. That is a comparator. Put three op amps together with matched resistors and you get an amplifier that picks a millivolt difference out of volts of noise.')+
+ '<div class="card"><h3>Comparator (Figs. 6.35 and 6.36)</h3><div class="lab"><div class="stack">'+
+ '<div class="seg" id="k_pre"><button data-k="fig635" class="on">Fig. 6.35: ±12 V, ref 2.5 V</button><button data-k="ex68">Example 6.8: 0/5 V, ref 3 V</button></div>'+
+ '<div class="seg" id="k_side"><button data-k="plus" class="on">Reference on +</button><button data-k="minus">Reference on −</button></div>'+
+ ctrl('k_amp','Signal amplitude',0,6,0.1,4,fU('V'))+ctrl('k_off','Signal dc level',-1,6,0.1,2.5,fU('V'))+ctrl('k_ref','Reference',0,6,0.1,2.5,fU('V'))+
+ '</div><div><canvas id="k_cv" class="scope"></canvas>'+reads([['k_hi','Output high for'],['k_th','Switch threshold'],['k_eps','Input to saturate (A = 10⁵)']])+'</div></div>'+
+ '<p>With the reference on the noninverting input, a high output means the signal is below the reference. Swap the reference to the inverting input and the sense flips. Example 6.8 uses a single +5 V supply so the output swings 0 to 5 V and drops to “logic 1” when the signal falls below 3 V.</p></div>'+
+ '<div class="card"><h3>Instrumentation amplifier (Fig. 6.38 and Eq. 23)</h3><div class="lab"><div class="stack">'+
+ ctrl('n_vd','Differential signal v+ − v−',-50,50,0.5,10,fU('mV'))+ctrl('n_vcm','Common-mode noise',-5,5,0.1,3,fU('V'))+
+ ctrl('n_k','Gain K = R2/R1',0,3,0.01,2,function(v){return f(v)},true)+ctrl('n_mm','Mismatch of R4/R3 vs R2/R1',0,5,0.01,0.1,fU('%'))+
+ '</div><div>'+reads([['n_out','Output'],['n_idl','Ideal K·(v+ − v−)'],['n_err','Error from common-mode'],['n_cmrr','Resulting CMRR']])+
+ '<div class="eq" id="n_eq"></div></div></div></div>'+
+ '<h3 style="margin-top:18px">Check yourself</h3><div class="mcq" data-set="comp"></div>',
+ renderComp);
+function renderComp(){
+  var cfg=S.comp,amp=V('k_amp'),off=V('k_off'),ref=V('k_ref');
+  var xs=[],vi=[],vr=[],vo=[],N=600,hi=0;
+  for(var i=0;i<=N;i++){
+    var t=2*i/N,s=off+amp*Math.sin(2*Math.PI*t),vp=cfg.refPlus?ref:s,vn=cfg.refPlus?s:ref,o=vp>vn?cfg.pos:cfg.neg;
+    if(o===cfg.pos)hi++;xs.push(t);vi.push(s);vr.push(ref);vo.push(o);
+  }
+  var lo=Math.min(cfg.neg,off-amp,ref)-1,up=Math.max(cfg.pos,off+amp,ref)+1;
+  plot($('k_cv'),{xmin:0,xmax:2,ymin:lo,ymax:up,series:[{x:xs,y:vi,color:'#4fc3f7'},{x:xs,y:vo,color:'#ffb347',width:2.5}],hlines:[{y:ref,color:'#a5d66b'}],xlabel:'t (s)',ylabel:'Voltage (V)',legend:[{label:'signal',color:'#4fc3f7'},{label:'vout',color:'#ffb347'},{label:'reference',color:'#a5d66b'}]});
+  setRead('k_hi',f(100*hi/(N+1),3)+' % of the time','');
+  setRead('k_th',f(ref)+' V','');
+  setRead('k_eps',eng((cfg.pos-cfg.neg)/2/1e5,'V'),'');
+  var vd=V('n_vd')/1000,vcm=V('n_vcm'),K1=V('n_k'),K2=K1*(1+V('n_mm')/100);
+  var a=K2*(1+K1)/(1+K2),Ad=(a+K1)/2,Acm=Math.abs(a-K1),out=Ad*vd+(a-K1)*vcm,idl=K1*vd,errv=out-idl;
+  setRead('n_out',eng(out,'V'),Math.abs(out)>13?'bad':'');setRead('n_idl',eng(idl,'V'),'');
+  setRead('n_err',eng(errv,'V'),Math.abs(errv)>0.01*Math.max(Math.abs(idl),1e-9)?'warn':'ok');
+  setRead('n_cmrr',Acm<1e-12?'infinite':f(20*Math.log10(Ad/Acm),3)+' dB','');
+  $('n_eq').innerHTML='v+ = vcm + vd/2, v− = vcm − vd/2<br>vout = (R4/R3)[(1 + R2/R1)/(1 + R4/R3)] v+ − (R2/R1) v−<br>With R4/R3 = R2/R1 = K, vout = K(v+ − v−). Set the mismatch to 0 to remove the common-mode term. Devices such as the AD622 set K from 1 to 1000 with one external resistor, RG.';
+}
+
+/* ---- Design lab ---- */
+var PROBS=[
+ {t:'Fig. 6.5: a 2.5 V dc input must produce −10 V from an inverting amplifier. Choose R1 = 100 Ω. Find Rf.',u:'Ω',ans:400,tol:0.01,s:'Rf/R1 = 10/2.5 = 4, so Rf = 4 × 100 Ω = 400 Ω.'},
+ {t:'Fiber optic intercom transmitter (noninverting): the microphone peaks at 40 mV and the LED wants 1.6 V. With R1 = 1 kΩ, find Rf.',u:'kΩ',ans:39,tol:0.02,s:'Gain = 1.6/0.04 = 40 = 1 + Rf/R1, so Rf = 39 kΩ.'},
+ {t:'Receiver (noninverting): the photodetector gives 10 mV. The 8 Ω speaker takes 100 mW maximum, which is 894 mV. With R2 = 10 kΩ, find R3.',u:'kΩ',ans:884,tol:0.02,s:'Gain = 894/10 = 89.4 = 1 + R3/R2, so R3 = 88.4 × 10 kΩ = 884 kΩ.'},
+ {t:'Example 6.3: the summing stage output is −8.8 V when all tanks are full, and the final inverting stage must give 1 V. With R6 = 1 kΩ, find R5.',u:'kΩ',ans:8.8,tol:0.02,s:'R6/R5 = 1/8.8, so R5 = 8.8 kΩ.'},
+ {t:'Example 6.4: a 1N750 (4.7 V, 75 mA max) on a 9 V battery, designed for 50 percent of the maximum current. Find Rref.',u:'Ω',ans:115,tol:0.02,s:'Rref = (9 − 4.7)/0.0375 A = 115 Ω.'},
+ {t:'Practice 6.4: a 6 V reference from a noninverting amplifier fed by the Zener (4.733 V in the simulation). With R1 = 1 kΩ, find Rf.',u:'Ω',ans:268,tol:0.03,s:'Gain = 6/4.733 = 1.268 = 1 + Rf/R1, so Rf = 0.268 kΩ = 268 Ω.'},
+ {t:'Practice 6.5: a current source for 500 µA from Vref = 4.9 V. Find Rref.',u:'kΩ',ans:9.8,tol:0.02,s:'Rref = 4.9 V / 500 µA = 9.8 kΩ.'},
+ {t:'An LF411 slews at 15 V/µs. How long does the output take to move from 0 to 2 V?',u:'ns',ans:133.3,tol:0.03,s:'t = 2 V / 15 V/µs = 0.133 µs = 133 ns.'}
+];
+addPanel('lab','Design lab','Practice','Design lab',
+ head('Practice','Design lab','Eight sizing problems from the chapter. Enter a number in the units shown. Answers within a few percent count, since standard resistor values are never exact.')+
+ '<div id="probs"></div>',null);
+function buildProbs(){
+  $('probs').innerHTML=PROBS.map(function(p,i){
+    return '<div class="prob"><div><b>'+(i+1)+'.</b> '+p.t+'</div><div class="row"><input type="number" step="any" id="pi'+i+'" aria-label="Answer '+(i+1)+'"> <span>'+p.u+'</span>'+
+      '<button class="btn primary" data-chk="'+i+'">Check</button><button class="btn" data-sol="'+i+'">Show solution</button><span class="fb" id="pf'+i+'"></span></div><div class="sol" id="ps'+i+'">'+p.s+'</div></div>';
+  }).join('');
+}
+
+/* ---- Quiz ---- */
+addPanel('quiz','Quiz','Review','Chapter quiz',
+ head('Review','Chapter quiz','Fourteen questions across the chapter. Each answer shows the reasoning. Reset to try again.')+'<div class="mcq" id="finalq"></div>',null);
+
+/* ---- Summary ---- */
+addPanel('summary','Summary','Reference','Summary',
+ head('Reference','Equation sheet','The relations from Table 6.1 and the sections that follow.')+
+ '<div class="rules"><b>Ideal op amp rules</b><ol><li>No current ever flows into either input terminal.</li><li>There is no voltage difference between the input terminals.</li></ol></div>'+
+ '<div class="eqrows">'+[
+  ['Inverting amplifier','vout = −(Rf/R1) vin','Output is 180° out of phase.'],
+  ['Noninverting amplifier','vout = (1 + Rf/R1) vin','Gain of at least 1, in phase.'],
+  ['Voltage follower','vout = vin','Buffer. No input current in the ideal case.'],
+  ['Summing amplifier','vout = −(Rf/R)(v1 + v2 + v3)','Rf = R gives the negative sum.'],
+  ['Difference amplifier','vout = v2 − v1','All four resistors equal.'],
+  ['Cascade, summing then inverting','vout = (R2/R1)(Rf/R)(v1 + v2)','Gains multiply, no phase reversal.'],
+  ['Zener resistor','Rref = (Vs − Vz)/Iref','Design for about 50 percent of Imax.'],
+  ['Current source','Is = Vref/Rref','Independent of RL within the supply limit.'],
+  ['Differential input','vd = vout/A','About 120 µV for 24 V and A = 2×10⁵.'],
+  ['CMRR','CMRR(dB) = 20 log₁₀(A/ACM)','100 dB means a ratio of 10⁵.'],
+  ['Slew rate','Δt = ΔV / SR','2 V at 15 V/µs takes about 133 ns.'],
+  ['Comparator','vout = +rail if v+ > v−, else −rail','Open loop. Saturates for Δv about supply/A.'],
+  ['Instrumentation amplifier','vout = K(v+ − v−) when R4/R3 = R2/R1 = K','Gain 1 to 1000 on the AD622 via RG.']
+ ].map(function(r){return '<div class="eqrow"><b>'+r[0]+'</b><code>'+r[1]+'</code><span>'+r[2]+'</span></div>'}).join('')+'</div>'+
+ '<h3 style="margin-top:18px">Habits that work</h3><ul class="clean"><li>Write nodal equations at the input nodes and work toward the output.</li><li>Never write KCL at the output pin. The supplies feed it an unknown current.</li><li>Use both ideal rules. Rule 1 sets currents, rule 2 sets node voltages.</li><li>Check that the result stays inside the supply limits before trusting it.</li></ul>'+
+ '<h3 style="margin-top:18px">Reading further</h3><ul class="clean"><li>R. Mancini (ed.), Op Amps Are For Everyone, 2nd ed., Newnes, 2003.</li><li>W. G. Jung, Op Amp Cookbook, 3rd ed., Prentice-Hall, 1997.</li><li>J. R. Ragazzini, R. M. Randall, F. A. Russell, Proceedings of the IRE 35(5), 1947, pp. 444 to 452.</li></ul>',null);
+
+/* ======================= BOOT ======================= */
+var panels=$('panels'),tabs=$('tabs');
+P.forEach(function(p){
+  var d=document.createElement('section');d.className='panel';d.id='p_'+p.id;d.innerHTML=p.html;panels.appendChild(d);
+  var b=document.createElement('button');b.textContent=p.tab;b.dataset.tab=p.id;tabs.appendChild(b);
+});
+$('modgrid').innerHTML=P.filter(function(p){return p.id!=='start'}).map(function(p){
+  var blurb={rules:'Two rules and a step-by-step derivation',amps:'Gain, phase and clipping on a live scope',sum:'Add signals, subtract signals, build a fuel gauge',cascade:'Chain two stages and watch the gains multiply',sources:'Zener reference and a load-independent current source',real:'Finite gain, CMRR and slew rate',comp:'Open-loop switching and the three op amp in-amp',lab:'Eight sizing problems from the chapter',quiz:'Fourteen questions with worked reasoning',summary:'Equation sheet and habits'}[p.id];
+  return '<button data-go="'+p.id+'"><span class="chip">'+(p.sec||'')+'</span><b>'+p.title+'</b><span>'+blurb+'</span></button>';
+}).join('');
+buildProbs();
+document.querySelectorAll('.mcq[data-set]').forEach(function(el){mcq(el,CHECKS[el.dataset.set],false)});
+mcq($('finalq'),FINAL,true);
+
+function show(id){
+  S.tab=id;
+  P.forEach(function(p){$('p_'+p.id).classList.toggle('on',p.id===id)});
+  tabs.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.tab===id)});
+  var cur=P.filter(function(p){return p.id===id})[0];
+  if(cur&&cur.render)cur.render();
+  window.scrollTo(0,0);
+}
+function renderActive(){var cur=P.filter(function(p){return p.id===S.tab})[0];if(cur&&cur.render)cur.render()}
+
+document.querySelectorAll('input[type=range]').forEach(function(e){refreshOut(e.id)});
+
+document.addEventListener('input',function(e){
+  if(e.target.type==='range'){refreshOut(e.target.id);renderActive()}
+});
+document.addEventListener('click',function(e){
+  var t=e.target.closest('button');if(!t)return;
+  if(t.dataset.tab){show(t.dataset.tab);return}
+  if(t.dataset.go){show(t.dataset.go);return}
+  var par=t.parentElement&&t.parentElement.id;
+  if(par==='a_mode'){S.amps=t.dataset.k;setSeg('a_mode',t.dataset.k);renderAmps();return}
+  if(par==='a_pre'){
+    var k=t.dataset.k;
+    if(k==='p1'){S.amps='inv';setV('a_amp',5);setV('a_r1',4.7);setV('a_rf',47);setV('a_sup',15)}
+    if(k==='p2'){S.amps='non';setV('a_amp',5);setV('a_r1',4.7);setV('a_rf',47);setV('a_sup',15)}
+    if(k==='p3'){setV('a_amp',500);setV('a_sup',15)}
+    setSeg('a_mode',S.amps);renderAmps();return;
+  }
+  if(par==='s_pre'){
+    if(t.dataset.k==='kg'){setV('s_r',10);setV('s_rf',4.5)}else{setV('s_r',10);setV('s_rf',10)}
+    renderSum();return;
+  }
+  if(par==='c_pre'){setV('c_r',10);setV('c_rf',10);setV('c_r1',10);setV('c_r2',10);renderCascade();return}
+  if(par==='r_pre'){
+    var pr={'741':[2e5,2e6,75],'411':[2e5,1e12,1],'549':[1e6,1e13,15]}[t.dataset.k];
+    setV('r_a',pr[0]);setV('r_ri',pr[1]);setV('r_ro',pr[2]);setSeg('r_pre',t.dataset.k);renderReal();return;
+  }
+  if(par==='w_pre'){setV('w_sr',+t.dataset.k);setSeg('w_pre',t.dataset.k);renderReal();return}
+  if(par==='k_pre'){
+    if(t.dataset.k==='fig635'){S.comp.pos=12;S.comp.neg=-12;setV('k_ref',2.5);setV('k_off',2.5);setV('k_amp',4)}
+    else{S.comp.pos=5;S.comp.neg=0;setV('k_ref',3);setV('k_off',3);setV('k_amp',2)}
+    setSeg('k_pre',t.dataset.k);renderComp();return;
+  }
+  if(par==='k_side'){S.comp.refPlus=t.dataset.k==='plus';setSeg('k_side',t.dataset.k);renderComp();return}
+  if(t.id==='u_next'){U.step=Math.min(4,U.step+1);renderRules();return}
+  if(t.id==='u_back'){U.step=Math.max(0,U.step-1);renderRules();return}
+  if(t.id==='u_all'){U.step=4;renderRules();return}
+  if(t.dataset.chk!==undefined){
+    var i=+t.dataset.chk,p=PROBS[i],v=parseFloat($('pi'+i).value),fb=$('pf'+i);
+    if(isNaN(v)){fb.textContent='Enter a number first.';fb.className='fb';return}
+    var err=Math.abs(v-p.ans)/p.ans;
+    if(err<=p.tol){fb.textContent='Correct.';fb.className='fb ok'}
+    else{fb.textContent=(v>p.ans?'Too high':'Too low')+'. Try again or view the solution.';fb.className='fb no'}
+    return;
+  }
+  if(t.dataset.sol!==undefined){$('ps'+t.dataset.sol).classList.toggle('show');return}
+});
+window.addEventListener('resize',renderActive);
+
+var h=(location.hash||'').replace('#','');
+show(P.some(function(p){return p.id===h})?h:'start');
+})();
+</script>
+
+</body></html>
